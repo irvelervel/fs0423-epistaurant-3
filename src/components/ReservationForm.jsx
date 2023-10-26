@@ -30,7 +30,7 @@ class ReservationForm extends Component {
   handleInputChange = (property, value) => {
     this.setState({
       reservation: {
-        ...this.state.reservation,
+        ...this.state.reservation, // questo si occupa di portare in questo oggetto reservation anche l'esistente name, phone, etc.
         [property]: value,
         // se noi vogliamo utilizzare un parametro o una variabile come NOME di proprietà di un oggetto
         // dobbiamo valutare il contenuto del parametro o della variabile tramite [ ]

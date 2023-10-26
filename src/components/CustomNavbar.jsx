@@ -9,7 +9,7 @@ import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 
 const CustomNavbar = (props) => {
-  console.log('le props sono', props)
+  // console.log('le props sono', props)
 
   return (
     <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
