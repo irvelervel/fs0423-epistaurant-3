@@ -21,7 +21,18 @@
 // A questo punto, il componente si ferma (va in stand-by).
 
 import { Component } from 'react'
-import { Container, Row, Col, ListGroup, Spinner, Alert } from 'react-bootstrap'
+import {
+  Container,
+  Row,
+  Col,
+  ListGroup,
+  Spinner,
+  Alert,
+  Button,
+} from 'react-bootstrap'
+import { Trash3Fill } from 'react-bootstrap-icons'
+import { parseISO, format } from 'date-fns'
+import { it } from 'date-fns/locale'
 
 // per recuperare le prenotazioni, e mostrarle in una lista avremo bisogno di uno STATE
 
@@ -113,9 +124,9 @@ class ReservationList extends Component {
       <Container>
         <Row className="justify-content-center mt-3">
           <Col
-            md={6}
+            md={8}
             // esempio di assegnazioni classi dinamica senza ripetere le classi presenti in entrambi i casi
-            className={`col col-md-6 ${this.state.isLoading ? 'mb-2' : 'mb-3'}`}
+            className={`col col-md-8 ${this.state.isLoading ? 'mb-2' : 'mb-3'}`}
           >
             <h2 className="text-center my-3">Prenotazioni esistenti:</h2>
             {this.state.isLoading && (
@@ -131,9 +142,54 @@ class ReservationList extends Component {
             <ListGroup>
               {this.state.reservations.map((reservation) => {
                 return (
-                  <ListGroup.Item key={reservation._id}>
-                    {reservation.name} per {reservation.numberOfPeople} il{' '}
-                    {reservation.dateTime}
+                  <ListGroup.Item
+                    key={reservation._id}
+                    className="d-flex justify-content-between"
+                  >
+                    <div className="d-flex align-items-center">
+                      {reservation.name} per {reservation.numberOfPeople} il{' '}
+                      {/* passaggi per abbellire la data della prenotazione tramite date-fns */}
+                      {/* 1) convertire dateTime in un oggetto Date --> parseISO() */}
+                      {/* 2) convertire l'oggetto Date ottenuto in una stringa -più bella- --> format() */}
+                      {format(
+                        parseISO(reservation.dateTime),
+                        'd MMM yyyy | HH:mm',
+                        { locale: it }
+                      )}
+                    </div>
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        // ora elimino l'elemento su cui ho cliccato
+                        fetch(
+                          'https://striveschool-api.herokuapp.com/api/reservation/' +
+                            reservation._id,
+                          {
+                            method: 'DELETE',
+                          }
+                        )
+                          .then((res) => {
+                            if (res.ok) {
+                              // l'eliminazione è andata bene
+                              console.log('eliminazione completata')
+                              // recupero nuovamente TUTTE le prenotazioni in modo da ri-settare lo stato
+                              // e permettere al render() di re-invocarsi e trovare le differenze tra il precendente
+                              // DOM
+                              this.getReservations()
+                            } else {
+                              // l'eliminazione NON è andata bene
+                              throw new Error(
+                                "Qualcosa è andato storto nell'eliminazione della prenotazione"
+                              )
+                            }
+                          })
+                          .catch((err) => {
+                            console.log('ERRORE', err)
+                          })
+                      }}
+                    >
+                      <Trash3Fill />
+                    </Button>
                   </ListGroup.Item>
                 )
               })}
